@@ -1,0 +1,6 @@
+{
+  "name": "BOSSMAN Mada",
+  "description": "Rejoignez BOSSMAN Mada, choisissez votre abonnement et gagnez des revenus en ligne à Madagascar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

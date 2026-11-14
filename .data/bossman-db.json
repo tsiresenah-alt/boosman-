@@ -1,0 +1,23 @@
+{
+  "users": [],
+  "requests": [],
+  "messages": [],
+  "maintenance": {
+    "sections": {
+      "deposit": false,
+      "withdraw": false,
+      "referral": false,
+      "history": false,
+      "support": false
+    },
+    "subscriptions": {
+      "1": false,
+      "2": false,
+      "3": false,
+      "4": false,
+      "5": false
+    }
+  },
+  "nextRequestId": 2,
+  "nextMessageId": 2
+}

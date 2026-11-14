@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOSSMAN Mada</title>
+    
+    <!-- Balises Open Graph pour l'aperçu Facebook et Messenger -->
+    <meta property="og:title" content="BOSSMAN Mada - Gagnez de l'argent en ligne">
+    <meta property="og:description" content="Rejoignez BOSSMAN Mada, choisissez votre abonnement et gagnez des revenus en ligne à Madagascar.">
+    <meta property="og:image" content="https://tsiresenah-alt.github.io/Boosman2.0/preview_image.png">
+    <meta property="og:url" content="https://tsiresenah-alt.github.io/Boosman2.0/">
+    <meta property="og:type" content="website">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        @keyframes subtleGlow {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; text-shadow: 0 0 20px rgba(234, 179, 8, 0.7); transform: scale(1.01); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+        @keyframes pulseRed {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        @keyframes blinkRed {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        @keyframes floatAnim {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+            100% { transform: translateY(0px); }
+        }
+        .luxury-title { animation: subtleGlow 3s infinite ease-in-out; }
+        .pulse-badge { animation: pulseRed 2s infinite; }
+        .blinking-banner { animation: blinkRed 1s infinite; }
+        .floating-card { animation: floatAnim 4s infinite ease-in-out; }
+        
+        .fade-out {
+            transition: all 0.8s ease-out;
+            opacity: 0;
+            transform: scale(0.95);
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #030712 100%);
+        }
+    </style>
+</head>
+<body class="text-gray-100 font-sans min-h-screen flex flex-col justify-between selection:bg-yellow-500 selection:text-black" onmousemove="refreshAdminBadge()" ontouchstart="refreshAdminBadge()">
+
+    <!-- CONTENEUR PRINCIPAL -->
+    <div id="app" class="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
+        
+        <!-- PAGE 1: AUTHENTIFICATION -->
+        <div id="auth-page" class="w-full max-w-md bg-gray-900/80 backdrop-blur-xl border border-gray-800/80 rounded-3xl p-8 shadow-2xl shadow-black/60 transition-all duration-500">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-black tracking-wider luxury-title bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 bg-clip-text text-transparent mb-2">BOSSMAN Mada</h1>
+                <p id="txt-welcome" class="text-gray-400 text-xs font-medium tracking-wide">BIENVENUE - Gagnez de l'argent en ligne avec élégance</p>
+            </div>
+
+            <div class="flex bg-gray-950/60 p-1 rounded-xl border border-gray-800/60 mb-6">
+                <button type="button" onclick="switchTab('register')" id="tab-register-btn" class="flex-1 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 bg-yellow-500 text-black shadow-lg">Inscription</button>
+                <button type="button" onclick="switchTab('login')" id="tab-login-btn" class="flex-1 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 text-gray-400 hover:text-white">Connexion</button>
+            </div>
+
+            <!-- Inscription -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Nom d'utilisateur</label>
+                    <input type="text" id="reg-name" required class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Numéro de téléphone</label>
+                    <input type="tel" id="reg-phone" maxlength="10" placeholder="034XXXXXXX" required class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Mot de passe</label>
+                    <input type="password" id="reg-pass" oninput="validatePassword(this)" required class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                    <p id="pass-feedback" class="text-[11px] text-red-400 mt-1.5 font-medium">Le mot de passe doit contenir au moins 6 caractères.</p>
+                </div>
+                <div id="ref-notice" class="text-xs text-yellow-400 font-medium hidden bg-yellow-500/10 p-2.5 rounded-xl border border-yellow-500/20"></div>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-extrabold py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-yellow-500/20 transition-all duration-300 transform active:scale-[0.98]">S'inscrire (+2 000 Ar Bonus)</button>
+            </form>
+
+            <!-- Connexion -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Numéro de téléphone</label>
+                    <input type="tel" id="log-phone" maxlength="10" required class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Mot de passe</label>
+                    <input type="password" id="log-pass" required class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                </div>
+                <div class="text-right">
+                    <button type="button" onclick="openModal('forgot-password-modal')" class="text-xs text-yellow-400 hover:underline font-semibold">Mot de passe oublié ?</button>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-blue-600/20 transition-all duration-300 transform active:scale-[0.98]">Se connecter</button>
+            </form>
+
+            <div class="mt-8 text-center border-t border-gray-800/60 pt-5">
+                <button type="button" onclick="openAdminLogin()" class="relative text-xs text-gray-400 hover:text-yellow-400 font-semibold tracking-wider transition-colors py-1 px-4 rounded-lg bg-gray-950/40 border border-gray-800">
+                    Accès Administrateur <span id="admin-badge-count" class="hidden absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md pulse-badge">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- LOADER -->
+        <div id="loader" class="hidden flex flex-col items-center justify-center space-y-4">
+            <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-yellow-500/30"></div>
+            <p class="text-yellow-400 font-semibold text-sm tracking-wider">Chargement de votre espace...</p>
+        </div>
+
+        <!-- PAGE 2: TABLEAU DE BORD -->
+        <div id="dashboard-page" class="w-full max-w-2xl bg-gray-900/80 backdrop-blur-xl border border-gray-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 hidden transition-all duration-500">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-800/80 pb-5">
+                <div>
+                    <h2 id="dash-username" class="text-2xl font-black text-white tracking-wide">Nom d'utilisateur</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Solde principal : <span id="dash-balance" class="text-yellow-400 font-extrabold text-sm">0 Ar</span></p>
+                </div>
+                <div class="flex items-center space-x-2.5">
+                    <button type="button" onclick="openModal('support-chat-modal')" id="btn-support" class="relative bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 p-3 rounded-2xl text-red-400 transition-all duration-300 transform hover:scale-105" title="Support Admin">
+                        <i class="fa-solid fa-headset text-sm"></i>
+                        <span id="user-msg-badge" class="hidden absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md pulse-badge">0</span>
+                    </button>
+                    <button type="button" onclick="openModal('ai-chat-modal')" class="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 p-3 rounded-2xl text-indigo-400 transition-all duration-300 transform hover:scale-105" title="Assistant IA">
+                        <i class="fa-solid fa-robot text-sm"></i>
+                    </button>
+                    <button type="button" onclick="openSettings()" class="bg-gray-800/60 hover:bg-gray-800 border border-gray-700/60 p-3 rounded-2xl text-gray-300 transition-all duration-300 transform hover:scale-105" title="Paramètres">
+                        <i class="fa-solid fa-gear text-sm"></i>
+                    </button>
+                    <button type="button" onclick="logout()" class="bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 p-3 rounded-2xl text-red-400 transition-all duration-300 transform hover:scale-105" title="Déconnecter">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actions Rapides -->
+            <div class="grid grid-cols-4 gap-3 mb-6">
+                <button type="button" onclick="openModal('deposit-modal')" id="btn-deposit" class="relative bg-gray-950/60 hover:bg-gray-800/80 border border-gray-800 hover:border-emerald-500/50 p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 group overflow-hidden shadow-md">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-wallet text-emerald-400 text-base"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200">Dépôt</span>
+                </button>
+                <button type="button" onclick="openModal('withdraw-modal')" id="btn-withdraw" class="relative bg-gray-950/60 hover:bg-gray-800/80 border border-gray-800 hover:border-blue-500/50 p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 group overflow-hidden shadow-md">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-money-bill-transfer text-blue-400 text-base"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200">Retrait</span>
+                </button>
+                <button type="button" onclick="openModal('referral-modal')" id="btn-referral" class="relative bg-gray-950/60 hover:bg-gray-800/80 border border-gray-800 hover:border-yellow-500/50 p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 group overflow-hidden shadow-md">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-users text-yellow-400 text-base"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200">Parrainage</span>
+                </button>
+                <button type="button" onclick="openModal('history-modal')" id="btn-history" class="relative bg-gray-950/60 hover:bg-gray-800/80 border border-gray-800 hover:border-purple-500/50 p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 group overflow-hidden shadow-md">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-clock-rotate-left text-purple-400 text-base"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200">Histoire</span>
+                </button>
+            </div>
+
+            <!-- BLOC TEST DU SITE AVEC HORLOGE 24H ET EXPIRATION AUTOMATIQUE -->
+            <div id="test-24h-banner" class="bg-gradient-to-r from-gray-950/90 via-gray-900/90 to-amber-950/30 border border-yellow-500/40 p-5 rounded-2xl mb-6 shadow-xl floating-card">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-yellow-400 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-stopwatch text-base text-yellow-400 animate-pulse"></i> <span>Session Test (Horloge 24h)</span>
+                    </h4>
+                    <span id="test-clock-display" class="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs font-mono font-black px-3 py-1 rounded-full tracking-widest shadow-md">24:00:00</span>
+                </div>
+                <p class="text-xs text-gray-300 mb-3">Testez le site pendant 24h. Envoyez un commentaire et une capture d'écran d'un bug pour recevoir automatiquement <strong class="text-emerald-400">1 000 Ar</strong> approuvé par l'admin !</p>
+                <button type="button" onclick="openModal('bug-report-modal')" class="w-full bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-yellow-500/20 flex items-center justify-center space-x-2 transform active:scale-95">
+                    <i class="fa-solid fa-bug"></i> <span>Signaler un problème (Commentaire + Capture)</span>
+                </button>
+            </div>
+
+            <!-- BLOC ABONNEMENT ACTIF -->
+            <div id="active-sub-banner" class="hidden bg-gradient-to-r from-emerald-950/40 via-gray-900 to-emerald-950/40 border border-emerald-500/30 p-5 rounded-2xl mb-6 flex justify-between items-center shadow-lg shadow-emerald-950/20">
+                <div>
+                    <h4 id="active-sub-name" class="font-bold text-emerald-400 text-sm flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-circle-check"></i> <span>ABONNEMENT Actif</span>
+                    </h4>
+                    <p class="text-xs text-gray-300">Prochain versement dans : <span id="sub-timer" class="font-mono font-bold text-yellow-400 tracking-wider">48:00:00</span></p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-block bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider pulse-badge">Actif en cours</span>
+                </div>
+            </div>
+
+            <!-- Abonnements -->
+            <h3 class="font-extrabold text-sm uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-gem text-yellow-500"></i> <span>ABONNEMENTS Disponibles</span>
+            </h3>
+            <div id="subscriptions-container" class="space-y-3.5 mb-2">
+                <!-- Rempli dynamiquement en JS -->
+            </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div id="admin-page" class="w-full max-w-6xl bg-gray-900/90 backdrop-blur-xl border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xl hidden">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-5">
+                <h2 class="text-xl font-black text-red-500 tracking-wide flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> <span>Tableau de bord Administrateur</span></h2>
+                <button type="button" onclick="logoutAdmin()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-xs font-bold transition">Quitter Admin</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-6">
+                    <div class="bg-gray-950/60 border border-gray-800 p-5 rounded-2xl shadow-md">
+                        <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">🛠️ Maintenance Sections / Boutons</h3>
+                        <div id="admin-section-maintenance-list" class="space-y-2 text-xs"></div>
+                    </div>
+                    <div class="bg-gray-950/60 border border-gray-800 p-5 rounded-2xl shadow-md">
+                        <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">🛠️ Maintenance ABONNEMENTS</h3>
+                        <div id="admin-sub-maintenance-list" class="space-y-2 text-xs"></div>
+                    </div>
+                    <div class="bg-gray-950/60 border border-gray-800 p-5 rounded-2xl shadow-md">
+                        <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-gray-400 flex justify-between items-center">
+                            <span>Utilisateurs & ABONNEMENTS</span>
+                            <span id="admin-users-count-badge" class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-black">0</span>
+                        </h3>
+                        <div id="admin-users-list" class="space-y-3 max-h-60 overflow-y-auto text-xs pr-1"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-950/60 border border-gray-800 p-5 rounded-2xl shadow-md">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-gray-400 flex justify-between items-center">
+                        <span>Demandes & Rapports de Bugs</span>
+                        <span id="admin-requests-count-badge" class="hidden bg-red-600 text-white px-2 py-0.5 rounded-full text-[10px] font-extrabold pulse-badge">0</span>
+                    </h3>
+                    <div id="admin-requests-list" class="space-y-3 max-h-[500px] overflow-y-auto text-xs pr-1"></div>
+                </div>
+                <div class="bg-gray-950/60 border border-gray-800 p-5 rounded-2xl shadow-md flex flex-col">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-gray-400 flex justify-between items-center">
+                        <span>💬 Messages Support</span>
+                        <span id="admin-support-count-badge" class="hidden bg-red-600 text-white px-2 py-0.5 rounded-full text-[10px] font-extrabold pulse-badge">0</span>
+                    </h3>
+                    <div id="admin-support-list" class="flex-grow space-y-3 max-h-[500px] overflow-y-auto text-xs pr-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE RAPPORT DE BUG (TEST) -->
+    <div id="bug-report-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('bug-report-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-1 text-yellow-400">Signaler un Problème / Bug</h3>
+            <p class="text-gray-400 text-xs mb-4">Envoyez votre commentaire et une capture d'écran pour recevoir 1 000 Ar si approuvé par l'admin.</p>
+            
+            <form onsubmit="submitBugReport(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Commentaire / Description du problème</label>
+                    <textarea id="bug-comment" rows="3" placeholder="Décrivez le bug ou problème rencontré..." required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Capture d'écran (Image)</label>
+                    <input type="file" id="bug-proof" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-800 file:text-yellow-400 hover:file:bg-gray-700 cursor-pointer">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-yellow-500/20 transition">Envoyer le rapport</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE MOT DE PASSE OUBLIÉ -->
+    <div id="forgot-password-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('forgot-password-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-4 text-yellow-400">Récupération du mot de passe</h3>
+            
+            <div id="forgot-step-1" class="space-y-4">
+                <p class="text-xs text-gray-300">Entrez votre numéro de téléphone associé à votre compte pour recevoir un code SMS de confirmation.</p>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Numéro de téléphone</label>
+                    <input type="tel" id="forgot-phone" maxlength="10" placeholder="034XXXXXXX" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <button type="button" onclick="sendForgotPasswordCode()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-yellow-500/20 transition">Envoyer le code SMS</button>
+            </div>
+
+            <div id="forgot-loader" class="hidden flex flex-col items-center justify-center space-y-3 py-6">
+                <div class="w-10 h-10 border-3 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-yellow-400 font-semibold text-xs tracking-wider">Envoi du code SMS en cours...</p>
+            </div>
+
+            <div id="forgot-step-2" class="space-y-4 hidden">
+                <p class="text-xs text-emerald-400 font-medium">Un code de confirmation a été envoyé sur votre téléphone.</p>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Code de confirmation à 4 chiffres</label>
+                    <input type="text" id="forgot-code-input" maxlength="4" placeholder="Ex: 1234" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-sm text-white text-center font-mono tracking-widest focus:outline-none focus:border-yellow-500">
+                </div>
+                <button type="button" onclick="verifyForgotPasswordCode()" class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition">Vérifier le code</button>
+            </div>
+
+            <div id="forgot-step-3" class="space-y-4 hidden">
+                <p class="text-xs text-gray-300">Code vérifié avec succès. Entrez votre nouveau mot de passe.</p>
+                <div>
+                    <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1.5">Nouveau mot de passe (min. 6 caractères)</label>
+                    <input type="password" id="forgot-new-pass" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <button type="button" onclick="saveNewPassword()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-blue-600/20 transition">Changer le mot de passe</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE SUPPORT CHAT AVEC ONGLET DE FORMULAIRE DE DÉPÔT INTÉGRÉ -->
+    <div id="support-chat-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative flex flex-col h-[550px] shadow-2xl">
+            <button type="button" onclick="closeModal('support-chat-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-base mb-3 text-red-400 flex items-center space-x-2.5">
+                <i class="fa-solid fa-headset text-lg"></i> <span>Support Direct Admin & Dépôt</span>
+            </h3>
+
+            <!-- Onglets de basculement dans le support -->
+            <div class="flex bg-gray-950 p-1 rounded-xl border border-gray-800 mb-3 text-xs font-bold">
+                <button type="button" onclick="switchSupportTab('chat')" id="sup-tab-chat" class="flex-1 py-2 rounded-lg bg-red-600 text-white transition">💬 Discussion</button>
+                <button type="button" onclick="switchSupportTab('deposit')" id="sup-tab-deposit" class="flex-1 py-2 rounded-lg text-gray-400 hover:text-white transition">💳 Faire un Dépôt</button>
+            </div>
+
+            <!-- Contenu Discussion -->
+            <div id="support-chat-content" class="flex flex-col flex-grow overflow-hidden">
+                <div id="support-chat-messages" class="flex-grow bg-gray-950/60 border border-gray-800/80 rounded-2xl p-4 overflow-y-auto space-y-3 text-xs mb-3"></div>
+                <form onsubmit="sendSupportMessage(event)" class="flex space-x-2">
+                    <input type="text" id="support-input" placeholder="Écrivez votre message à l'admin..." required class="flex-grow bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-red-500">
+                    <button type="submit" class="bg-red-600 hover:bg-red-500 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-lg shadow-red-600/20">Envoyer</button>
+                </form>
+            </div>
+
+            <!-- Contenu Formulaire de Dépôt Intégré dans le Support -->
+            <div id="support-deposit-content" class="flex flex-col flex-grow overflow-y-auto hidden pr-1 space-y-3">
+                <div class="bg-gray-950/80 border border-emerald-500/30 p-3 rounded-xl text-xs">
+                    <p class="text-red-400 font-bold mb-1 pulse-badge">Minimum dépôt 15000ar - Minimum retrait 3000ar</p>
+                    <p class="text-gray-300">Orange Money : <span class="text-orange-400 font-extrabold">0371897870</span> (Manovo)</p>
+                    <p class="text-gray-300 mt-0.5">Airtel Money : <span class="text-red-400 font-extrabold">0336181891</span> (Riantso)</p>
+                </div>
+                <form onsubmit="submitChatDepositForm(event)" class="space-y-3">
+                    <input type="number" id="chat-dep-amount" placeholder="Montant (ex: 15000)" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="tel" id="chat-dep-phone" placeholder="Votre numéro expéditeur" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="chat-dep-ref" placeholder="Référence SMS transfert" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="file" id="chat-dep-proof" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-gray-800 file:text-emerald-400 cursor-pointer">
+                    <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition">Soumettre le Dépôt</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE DÉPÔT CLASSIQUE -->
+    <div id="deposit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('deposit-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-1 text-emerald-400">Faire un Dépôt</h3>
+            <p class="text-red-400 text-xs font-bold mb-5 pulse-badge">Minimum dépôt 15000ar - Minimum retrait 3000ar</p>
+            
+            <div class="bg-gray-950/80 border border-orange-500/30 p-3.5 rounded-2xl mb-3 text-xs">
+                <p class="text-gray-300 font-medium">Numéro Orange Money : <span class="text-orange-400 font-extrabold">0371897870</span></p>
+                <p class="text-gray-300 font-medium mt-1">Nom : <span class="text-orange-400 font-extrabold">Manovo Hasambarana</span></p>
+            </div>
+
+            <div class="bg-gray-950/80 border border-red-500/30 p-3.5 rounded-2xl mb-5 text-xs">
+                <p class="text-gray-300 font-medium">Numéro Airtel Money : <span class="text-red-400 font-extrabold">0336181891</span></p>
+                <p class="text-gray-300 font-medium mt-1">Nom : <span class="text-red-400 font-extrabold">Riantso Soloniaina</span></p>
+            </div>
+
+            <form onsubmit="submitDeposit(event)" class="space-y-3.5">
+                <input type="number" id="dep-amount" placeholder="Montant (ex: 15000)" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <input type="tel" id="dep-phone" placeholder="Votre numéro expéditeur" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <input type="text" id="dep-ref" placeholder="Référence SMS transfert" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <input type="file" id="dep-proof" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-800 file:text-emerald-400 hover:file:bg-gray-700 cursor-pointer">
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition">Soumettre le Dépôt</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE DE RETRAIT -->
+    <div id="withdraw-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('withdraw-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-1 text-blue-400">Faire un Retrait</h3>
+            <p class="text-red-400 text-xs font-bold mb-3 pulse-badge">Minimum retrait 3000 Ar (Frais de transfert : 10%)</p>
+            <form onsubmit="submitWithdraw(event)" class="space-y-4">
+                <div>
+                    <input type="number" id="wit-amount" placeholder="Montant (ex: 4000)" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-blue-500" oninput="calculateWithdrawNet()">
+                    <p id="wit-net-info" class="text-[11px] text-gray-400 mt-1.5 font-medium">Vous recevrez : <span class="text-emerald-400 font-bold">0 Ar</span> (Frais de 10% : 0 Ar)</p>
+                </div>
+                <select id="wit-method" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <option value="Orange Money">Orange Money</option>
+                    <option value="Airtel Money">Airtel Money</option>
+                </select>
+                <input type="tel" id="wit-phone" placeholder="Numéro de réception" required class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-blue-600/20 transition">Confirmer le Retrait</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE PARRAINAGE -->
+    <div id="referral-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative text-center shadow-2xl">
+            <button type="button" onclick="closeModal('referral-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-2 text-yellow-400">Parrainage</h3>
+            <p class="text-xs text-gray-400 mb-2">Votre code unique :</p>
+            <div class="bg-gray-950 border border-gray-800 p-3 rounded-xl font-mono text-sm text-yellow-400 font-extrabold mb-4" id="ref-code-display">BOSSMAN-01</div>
+            <p class="text-xs text-gray-400 mb-2">Vrai lien d'invitation direct :</p>
+            <input type="text" id="ref-link-input" readonly class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-center text-emerald-400 font-medium mb-5 select-all">
+            <div class="space-y-2.5">
+                <button type="button" onclick="copyReferralLink()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 font-black py-3 rounded-xl text-xs uppercase tracking-wider text-black transition shadow-lg shadow-yellow-500/20">Copier le lien</button>
+                <button type="button" onclick="shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 font-black py-3 rounded-xl text-xs uppercase tracking-wider text-white transition flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
+                    <i class="fa-brands fa-whatsapp text-base"></i> <span>Partager sur WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE HISTORIQUE -->
+    <div id="history-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('history-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-lg mb-4 text-purple-400">Historique des Transactions</h3>
+            <div id="history-list" class="space-y-2.5 max-h-72 overflow-y-auto text-xs pr-1"></div>
+        </div>
+    </div>
+
+    <!-- MODALE PARAMÈTRES -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative shadow-2xl">
+            <button type="button" onclick="closeModal('settings-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 id="set-title" class="font-black text-lg mb-5 text-gray-200">Paramètres & Infos</h3>
+            <div class="space-y-4 text-xs text-gray-300 mb-6">
+                <div>
+                    <label id="set-lang-label" class="block font-semibold mb-1.5 text-gray-400">Choisir la langue / Fidy fiteny :</label>
+                    <select id="language-selector" onchange="changeLanguage(this.value)" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500">
+                        <option value="fr">Français</option>
+                        <option value="mg">Malgache (Malagasy)</option>
+                    </select>
+                </div>
+                <p><strong>Nom du site :</strong> BOSSMAN Mada</p>
+                <p id="set-ai-info"><strong>Aide IA :</strong> Support actif 24/7 pour vos questions.</p>
+                
+                <div class="pt-3 border-t border-gray-800">
+                    <button type="button" onclick="deleteAccount()" class="w-full bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition">
+                        <i class="fa-solid fa-user-xmark mr-2"></i> Supprimer mon compte / Fafao ny kaontiko
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-4 text-center text-xs text-gray-500 font-medium">
+                <p>Créé par <span class="text-white font-bold">Manovo Hasambarana</span></p>
+                <p class="mt-0.5">Date de création : 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE CHAT IA -->
+    <div id="ai-chat-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-md relative flex flex-col h-[500px] shadow-2xl">
+            <button type="button" onclick="closeModal('ai-chat-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="font-black text-base mb-4 text-indigo-400 flex items-center space-x-2.5">
+                <i class="fa-solid fa-robot text-lg"></i> <span>Assistant IA - BOSSMAN Mada</span>
+            </h3>
+            <div id="ai-chat-messages" class="flex-grow bg-gray-950/60 border border-gray-800/80 rounded-2xl p-4 overflow-y-auto space-y-3 text-xs mb-4">
+                <div class="bg-gray-800/80 border border-gray-700/60 p-3 rounded-2xl max-w-[85%] text-gray-200">
+                    Manao ahoana! Salama tsara. Izaho no mpanampy IA anao eto amin'ny BOSSMAN Mada. Ahoana no ahafahako manampy anao androany?
+                </div>
+            </div>
+            <form onsubmit="sendAIMessage(event)" class="flex space-x-2">
+                <input type="text" id="ai-input" placeholder="Posez votre question ici..." required class="flex-grow bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-lg shadow-indigo-600/20">Envoyer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT JAVASCRIPT AVEC SUPABASE -->
+    <script>
+        // CONFIGURATION SUPABASE (Remplacez par vos clés Supabase)
+        const SUPABASE_URL = 'VOTRE_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'VOTRE_SUPABASE_ANON_KEY';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = JSON.parse(localStorage.getItem('bossman_current_user')) || null;
+        let subMaintenance = JSON.parse(localStorage.getItem('bossman_sub_maintenance')) || {1: false, 2: false, 3: false, 4: false, 5: false};
+        let sectionMaintenance = JSON.parse(localStorage.getItem('bossman_section_maintenance')) || { deposit: false, withdraw: false, referral: false, history: false, support: false };
+
+        let currentLang = localStorage.getItem('bossman_lang') || 'fr';
+        let tempResetPhone = '';
+        let generatedSmsCode = '';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const refFromUrl = urlParams.get('ref');
+        if(refFromUrl) {
+            localStorage.setItem('bossman_pending_ref', refFromUrl);
+        }
+
+        const subscriptionsData = [
+            { id: 1, name: "ABONNEMENT 1 (Débutant)", price: 15000, income: 1000, duration: 31, interval: 2, isVip: false },
+            { id: 2, name: "ABONNEMENT 2 (Standard)", price: 25000, income: 1500, duration: 30, interval: 2, isVip: false },
+            { id: 3, name: "ABONNEMENT 3 (Pro)", price: 40000, income: 3000, duration: 25, interval: 3, isVip: false },
+            { id: 4, name: "ABONNEMENT 4 (VIP BOSS)", price: 75000, income: 5000, duration: 31, interval: 3, isVip: true },
+            { id: 5, name: "ABONNEMENT 5 (VIP premium)", price: 90000, income: 6000, duration: 40, interval: 4, isVip: true }
+        ];
+
+        const translations = {
+            fr: { welcome: "BIENVENUE - Gagnez de l'argent en ligne avec élégance", settingsTitle: "Paramètres & Infos", langLabel: "Choisir la langue / Fidy fiteny :" },
+            mg: { welcome: "TONGASOA SOA - Mahazoa vola an-tserasera amin'ny fomba kanto", settingsTitle: "Fikirakirana & Fampahalalana", langLabel: "Fidy fiteny :" }
+        };
+
+        function applyLanguage() {
+            document.getElementById('language-selector').value = currentLang;
+            const t = translations[currentLang];
+            if(document.getElementById('txt-welcome')) document.getElementById('txt-welcome').textContent = t.welcome;
+            if(document.getElementById('set-title')) document.getElementById('set-title').textContent = t.settingsTitle;
+            if(document.getElementById('set-lang-label')) document.getElementById('set-lang-label').textContent = t.langLabel;
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('bossman_lang', lang);
+            applyLanguage();
+            alert(lang === 'mg' ? 'Voafidy soa aman-tsara ny fiteny Malagasy.' : 'Langue française enregistrée avec succès.');
+        }
+
+        function playNotificationSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 587.33;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        function updateSectionUI() {
+            const sections = [
+                { key: 'deposit', id: 'btn-deposit' }, { key: 'withdraw', id: 'btn-withdraw' },
+                { key: 'referral', id: 'btn-referral' }, { key: 'history', id: 'btn-history' }, { key: 'support', id: 'btn-support' }
+            ];
+            sections.forEach(s => {
+                const el = document.getElementById(s.id);
+                if(!el) return;
+                if(sectionMaintenance[s.key]) {
+                    el.classList.add('border-red-500', 'bg-red-950/40');
+                    if(!el.querySelector('.maint-tag')) {
+                        const tag = document.createElement('div');
+                        tag.className = 'maint-tag absolute inset-0 bg-red-950/90 flex items-center justify-center p-1 text-[9px] font-black text-white text-center uppercase blinking-banner z-10 rounded-2xl';
+                        tag.innerHTML = `<span>MAINTENANCE</span>`;
+                        el.appendChild(tag);
+                    }
+                } else {
+                    el.classList.remove('border-red-500', 'bg-red-950/40');
+                    const tag = el.querySelector('.maint-tag');
+                    if(tag) tag.remove();
+                }
+            });
+        }
+
+        function renderSubscriptionsList() {
+            const container = document.getElementById('subscriptions-container');
+            if(!container) return;
+            container.innerHTML = subscriptionsData.map(sub => {
+                const isMaintenance = subMaintenance[sub.id];
+                return `
+                    <div class="bg-gray-950/60 border ${isMaintenance ? 'border-red-500/80 shadow-red-950/50 shadow-xl' : 'border-gray-800/80'} p-5 rounded-2xl flex flex-col space-y-3 transition-all duration-300 shadow-lg relative overflow-hidden">
+                        ${isMaintenance ? `<div class="bg-red-600 text-white text-center py-1.5 px-3 rounded-xl font-black text-[10px] tracking-widest uppercase blinking-banner flex items-center justify-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> L'ADMIN EST EN TRAIN DE FAIRE UNE MISE À JOUR - MAINTENANCE</div>` : ''}
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-extrabold ${sub.isVip ? 'text-yellow-400' : 'text-emerald-400'} text-sm">ABONNEMENT ${sub.id}</h4>
+                                <p class="text-[11px] text-gray-400 mt-1">Durée : <strong>${sub.duration} jours</strong> | Revenu : <strong class="text-yellow-400">${sub.income.toLocaleString()} Ar</strong></p>
+                                <p class="text-xs font-bold mt-2 text-gray-200">Prix : <span class="${sub.isVip ? 'text-yellow-400' : 'text-emerald-400'} font-black">${sub.price.toLocaleString()} Ar</span></p>
+                            </div>
+                            <button type="button" onclick="subscribe(${sub.id}, ${sub.price}, ${sub.income}, ${sub.duration}, ${sub.interval})" ${isMaintenance ? 'disabled' : ''} class="${isMaintenance ? 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50' : (sub.isVip ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-black' : 'bg-gradient-to-r from-emerald-600 to-green-600 text-white')} text-xs font-extrabold px-5 py-2.5 rounded-xl uppercase tracking-wider">Souscrire</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function refreshAdminBadge() {
+            try {
+                const { data: requests } = await supabaseClient.from('requests').select('*');
+                const { data: messages } = await supabaseClient.from('messages').select('*');
+                
+                const unviewedReqCount = (requests || []).filter(r => r.viewed === false).length;
+                const unreadMsgCount = (messages || []).filter(m => m.sender === 'user' && !m.read).length;
+                const totalBadge = unviewedReqCount + unreadMsgCount;
+
+                const badge = document.getElementById('admin-badge-count');
+                if(badge) {
+                    if(totalBadge > 0) { badge.textContent = totalBadge; badge.classList.remove('hidden'); }
+                    else { badge.classList.add('hidden'); }
+                }
+
+                if(currentUser && messages) {
+                    const userUnreadMsgs = messages.filter(m => m.user_phone === currentUser.phone && m.sender === 'admin' && !m.read).length;
+                    const userMsgBadge = document.getElementById('user-msg-badge');
+                    if(userMsgBadge) {
+                        if(userUnreadMsgs > 0) { userMsgBadge.textContent = userUnreadMsgs; userMsgBadge.classList.remove('hidden'); }
+                        else { userMsgBadge.classList.add('hidden'); }
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function switchTab(tab) {
+            if(tab === 'register') {
+                document.getElementById('register-form').classList.remove('hidden');
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('tab-register-btn').className = 'flex-1 py-2.5 rounded-lg font-bold text-xs uppercase bg-yellow-500 text-black shadow-lg';
+                document.getElementById('tab-login-btn').className = 'flex-1 py-2.5 rounded-lg font-bold text-xs uppercase text-gray-400 hover:text-white';
+            } else {
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('tab-login-btn').className = 'flex-1 py-2.5 rounded-lg font-bold text-xs uppercase bg-blue-600 text-white shadow-lg';
+                document.getElementById('tab-register-btn').className = 'flex-1 py-2.5 rounded-lg font-bold text-xs uppercase text-gray-400 hover:text-white';
+            }
+        }
+
+        function switchSupportTab(tab) {
+            const chatContent = document.getElementById('support-chat-content');
+            const depositContent = document.getElementById('support-deposit-content');
+            const chatBtn = document.getElementById('sup-tab-chat');
+            const depositBtn = document.getElementById('sup-tab-deposit');
+
+            if(tab === 'chat') {
+                chatContent.classList.remove('hidden'); depositContent.classList.add('hidden');
+                chatBtn.className = 'flex-1 py-2 rounded-lg bg-red-600 text-white transition';
+                depositBtn.className = 'flex-1 py-2 rounded-lg text-gray-400 hover:text-white transition';
+            } else {
+                chatContent.classList.add('hidden'); depositContent.classList.remove('hidden');
+                depositBtn.className = 'flex-1 py-2 rounded-lg bg-emerald-600 text-white transition';
+                chatBtn.className = 'flex-1 py-2 rounded-lg text-gray-400 hover:text-white transition';
+            }
+        }
+
+        function validatePassword(input) {
+            const feedback = document.getElementById('pass-feedback');
+            if(input.value.length < 6) {
+                input.className = 'w-full bg-gray-950/80 border border-red-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none';
+                feedback.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+            } else {
+                input.className = 'w-full bg-gray-950/80 border border-yellow-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none';
+                feedback.textContent = 'Mot de passe valide.';
+                feedback.className = 'text-[11px] text-emerald-400 mt-1.5 font-medium';
+            }
+        }
+
+        async function deleteAccount() {
+            if(!currentUser) return;
+            if(confirm("Voulez-vous vraiment supprimer définitivement votre compte ?")) {
+                await supabaseClient.from('users').delete().eq('phone', currentUser.phone);
+                await supabaseClient.from('requests').delete().eq('user_phone', currentUser.phone);
+                await supabaseClient.from('messages').delete().eq('user_phone', currentUser.phone);
+
+                currentUser = null;
+                localStorage.removeItem('bossman_current_user');
+                closeModal('settings-modal');
+                document.getElementById('dashboard-page').classList.add('hidden');
+                document.getElementById('auth-page').classList.remove('hidden');
+                alert("Compte supprimé avec succès.");
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if(pass.length < 6) return alert('Mot de passe trop court.');
+
+            const { data: existing } = await supabaseClient.from('users').select('*').eq('phone', phone);
+            if(existing && existing.length > 0) return alert('Ce numéro est déjà enregistré.');
+
+            const referralCode = `BOSSMAN-${Math.floor(10 + Math.random() * 90)}`;
+            const referredBy = localStorage.getItem('bossman_pending_ref') || null;
+
+            const newUser = {
+                name, phone, pass, balance: 2000, referral_code: referralCode, referred_by: referredBy,
+                active_sub: null, test_start_time: Date.now(), history: [{type: 'Bonus inscription', amount: 2000, date: new Date().toLocaleString()}]
+            };
+
+            await supabaseClient.from('users').insert([newUser]);
+            await supabaseClient.from('messages').insert([{
+                user_phone: phone, user_name: 'Admin', sender: 'admin',
+                text: `Bienvenue sur BOSSMAN Mada, ${name} ! 🎉 Bonus de 2 000 Ar crédité.`,
+                date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), read: false
+            }]);
+            await supabaseClient.from('requests').insert([{
+                type: 'Nouvelle Inscription', user_name: name, user_phone: phone, amount: 0, status: 'Nouveau Membre', viewed: false
+            }]);
+
+            playNotificationSound();
+            alert('Inscription réussie ! Vous avez reçu 2 000 Ar de bonus.');
+            loginUser(newUser);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('log-phone').value;
+            const pass = document.getElementById('log-pass').value;
+
+            const { data: users } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('pass', pass);
+            if(!users || users.length === 0) return alert('Numéro ou mot de passe incorrect.');
+
+            loginUser(users[0]);
+        }
+
+        function loginUser(user) {
+            document.getElementById('auth-page').classList.add('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+                currentUser = user;
+                localStorage.setItem('bossman_current_user', JSON.stringify(currentUser));
+                updateDashboardUI();
+                document.getElementById('dashboard-page').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('bossman_current_user');
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('auth-page').classList.remove('hidden');
+        }
+
+        async function updateDashboardUI() {
+            if(!currentUser) return;
+            const { data: freshUsers } = await supabaseClient.from('users').select('*').eq('phone', currentUser.phone);
+            if(freshUsers && freshUsers.length > 0) currentUser = freshUsers[0];
+
+            document.getElementById('dash-username').textContent = currentUser.name;
+            document.getElementById('dash-balance').textContent = currentUser.balance + ' Ar';
+            document.getElementById('ref-code-display').textContent = currentUser.referral_code;
+            document.getElementById('ref-link-input').value = window.location.href.split('?')[0] + '?ref=' + currentUser.referral_code;
+
+            renderSubscriptionsList();
+            updateSectionUI();
+
+            const historyList = document.getElementById('history-list');
+            const history = currentUser.history || [];
+            historyList.innerHTML = history.map(h => `
+                <div class="bg-gray-950/80 border border-gray-800/80 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                    <div><p class="font-bold text-white">${h.type}</p><p class="text-[10px] text-gray-400">${h.date}</p></div>
+                    <span class="font-extrabold text-xs ${h.amount > 0 ? 'text-emerald-400' : 'text-red-400'}">${h.amount > 0 ? '+' : ''}${h.amount} Ar</span>
+                </div>
+            `).join('') || '<p class="text-gray-500 text-center py-4">Aucun historique</p>';
+
+            refreshAdminBadge();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'withdraw-modal') calculateWithdrawNet();
+            if(id === 'support-chat-modal') {
+                loadUserSupportChat();
+                markUserMessagesRead();
+            }
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openSettings() { openModal('settings-modal'); }
+
+        async function markUserMessagesRead() {
+            if(!currentUser) return;
+            await supabaseClient.from('messages').update({ read: true }).eq('user_phone', currentUser.phone).eq('sender', 'admin');
+            refreshAdminBadge();
+        }
+
+        function copyReferralLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link-input').value);
+            alert('Lien copié !');
+        }
+
+        function shareOnWhatsApp() {
+            window.open(`https://wa.me/?text=${encodeURIComponent('Rejoins BOSSMAN Mada ! ' + document.getElementById('ref-link-input').value)}`, '_blank');
+        }
+
+        function sendAIMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('ai-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+            const chatBox = document.getElementById('ai-chat-messages');
+            chatBox.innerHTML += `<div class="bg-indigo-600/30 p-3 rounded-2xl max-w-[85%] ml-auto text-white"><strong>Ianao:</strong> ${msg}</div>`;
+            input.value = '';
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="bg-gray-800 p-3 rounded-2xl max-w-[85%] text-gray-200"><strong>IA:</strong> Salama tsara! Mifandraisa amin'ny admin raha misy fanontaniana.</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        async function sendSupportMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('support-input');
+            const text = input.value.trim();
+            if(!text || !currentUser) return;
+
+            await supabaseClient.from('messages').insert([{
+                user_phone: currentUser.phone, user_name: currentUser.name, sender: 'user',
+                text: text, date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), read: false
+            }]);
+            input.value = '';
+            loadUserSupportChat();
+            refreshAdminBadge();
+            playNotificationSound();
+        }
+
+        async function loadUserSupportChat() {
+            if(!currentUser) return;
+            const { data: messages } = await supabaseClient.from('messages').select('*').eq('user_phone', currentUser.phone);
+            const chatBox = document.getElementById('support-chat-messages');
+            chatBox.innerHTML = (messages && messages.length) ? messages.map(m => `
+                <div class="p-3 rounded-2xl max-w-[85%] ${m.sender === 'user' ? 'bg-red-600/30 ml-auto text-white' : 'bg-gray-800 text-gray-200'}">
+                    <p class="text-[10px] text-gray-400 mb-1">${m.sender === 'user' ? 'Vous' : 'Admin'} - ${m.date}</p>
+                    <p class="text-xs">${m.text}</p>
+                </div>
+            `).join('') : '<p class="text-gray-500 text-center py-6">Aucun message.</p>';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function submitDeposit(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('dep-amount').value);
+            const phone = document.getElementById('dep-phone').value;
+            const ref = document.getElementById('dep-ref').value;
+            const file = document.getElementById('dep-proof').files[0];
+
+            if(amount < 15000) return alert('Minimum dépôt : 15 000 Ar.');
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                await supabaseClient.from('requests').insert([{
+                    type: 'Dépôt', user_phone: currentUser.phone, user_name: currentUser.name,
+                    amount, phone, ref, proof_data_url: e.target.result, status: 'En attente', viewed: false
+                }]);
+                closeModal('deposit-modal');
+                alert('Dépôt soumis avec succès.');
+                refreshAdminBadge();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitChatDepositForm(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('chat-dep-amount').value);
+            const phone = document.getElementById('chat-dep-phone').value;
+            const ref = document.getElementById('chat-dep-ref').value;
+            const file = document.getElementById('chat-dep-proof').files[0];
+
+            if(amount < 15000) return alert('Minimum dépôt : 15 000 Ar.');
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                await supabaseClient.from('requests').insert([{
+                    type: 'Dépôt', user_phone: currentUser.phone, user_name: currentUser.name,
+                    amount, phone, ref, proof_data_url: e.target.result, status: 'En attente', viewed: false
+                }]);
+                await supabaseClient.from('messages').insert([{
+                    user_phone: currentUser.phone, user_name: currentUser.name, sender: 'user',
+                    text: `[Dépôt] ${amount} Ar | Réf : ${ref}`, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), read: false
+                }]);
+                alert('Dépôt soumis depuis le chat !');
+                switchSupportTab('chat');
+                loadUserSupportChat();
+                refreshAdminBadge();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function calculateWithdrawNet() {
+            const amount = parseInt(document.getElementById('wit-amount').value) || 0;
+            const fee = Math.round(amount * 0.10);
+            const net = amount > fee ? amount - fee : 0;
+            document.getElementById('wit-net-info').innerHTML = `Vous recevrez : <span class="text-emerald-400 font-bold">${net.toLocaleString()} Ar</span> (Frais 10% : ${fee.toLocaleString()} Ar)`;
+        }
+
+        async function submitWithdraw(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('wit-amount').value);
+            const method = document.getElementById('wit-method').value;
+            const phone = document.getElementById('wit-phone').value;
+            const fee = Math.round(amount * 0.10);
+
+            if(amount < 3000) return alert('Minimum retrait : 3 000 Ar.');
+            if(amount > currentUser.balance) return alert('Solde insuffisant.');
+
+            await supabaseClient.from('requests').insert([{
+                type: 'Retrait', user_phone: currentUser.phone, user_name: currentUser.name,
+                amount, fee, net_amount: amount - fee, method, phone, status: 'En attente', viewed: false
+            }]);
+            closeModal('withdraw-modal');
+            alert('Retrait demandé avec succès !');
+            refreshAdminBadge();
+        }
+
+        async function subscribe(planId, price, income, durationDays, payoutDaysInterval) {
+            if(currentUser.balance < price) return alert('Solde insuffisant.');
+            currentUser.balance -= price;
+            currentUser.active_sub = { id: planId, name: `ABONNEMENT ${planId}`, income, expiresAt: Date.now() + (durationDays * 86400000), nextPayoutAt: Date.now() + (payoutDaysInterval * 86400000) };
+            currentUser.history.push({ type: `Achat Abonnement ${planId}`, amount: -price, date: new Date().toLocaleString() });
+
+            await supabaseClient.from('users').update({ balance: currentUser.balance, active_sub: currentUser.active_sub, history: currentUser.history }).eq('phone', currentUser.phone);
+            updateDashboardUI();
+            alert('Abonnement activé !');
+        }
+
+        async function openAdminLogin() {
+            const code = prompt('Mot de passe admin :');
+            if(code === 'Hasamlegacy') {
+                document.getElementById('auth-page').classList.add('hidden');
+                document.getElementById('admin-page').classList.remove('hidden');
+                loadAdminData();
+            } else if(code !== null) { alert('Mot de passe incorrect.'); }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('admin-page').classList.add('hidden');
+            document.getElementById('auth-page').classList.remove('hidden');
+        }
+
+        async function loadAdminData() {
+            const { data: users } = await supabaseClient.from('users').select('*');
+            const { data: requests } = await supabaseClient.from('requests').select('*');
+            const { data: messages } = await supabaseClient.from('messages').select('*');
+
+            await supabaseClient.from('requests').update({ viewed: true }).eq('viewed', false);
+
+            document.getElementById('admin-users-count-badge').textContent = (users || []).length;
+            document.getElementById('admin-users-list').innerHTML = (users || []).map(u => `
+                <div class="bg-gray-900 p-3 rounded-xl">
+                    <p class="font-bold text-white">${u.name} (${u.phone})</p>
+                    <p class="text-yellow-400">Solde : ${u.balance} Ar</p>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-requests-list').innerHTML = (requests || []).map(r => `
+                <div class="bg-gray-900 p-3 rounded-xl space-y-2">
+                    <p class="font-bold text-white">${r.type} - ${r.user_name} (${r.amount || 0} Ar)</p>
+                    ${r.proof_data_url ? `<img src="${r.proof_data_url}" class="max-h-32 rounded">` : ''}
+                    <p class="text-xs text-gray-400">Statut : ${r.status}</p>
+                    ${r.status === 'En attente' ? `
+                        <button onclick="handleRequest(${r.id}, 'Valider')" class="bg-green-600 px-3 py-1 text-white rounded text-xs">Valider</button>
+                        <button onclick="handleRequest(${r.id}, 'Refuser')" class="bg-red-600 px-3 py-1 text-white rounded text-xs">Refuser</button>
+                    ` : ''}
+                </div>
+            `).reverse().join('');
+
+            document.getElementById('admin-support-list').innerHTML = (messages || []).map(m => `
+                <div class="bg-gray-900 p-3 rounded-xl">
+                    <p class="font-bold text-white">${m.user_name} (${m.user_phone})</p>
+                    <p class="text-xs text-gray-300">${m.text}</p>
+                    <input type="text" id="admin-reply-${m.id}" placeholder="Répondre..." class="bg-gray-950 p-1 text-xs text-white mt-1 w-full">
+                    <button onclick="sendAdminReply('${m.user_phone}', ${m.id})" class="bg-blue-600 text-white px-2 py-1 text-xs mt-1 rounded">Envoyer</button>
+                </div>
+            `).reverse().join('');
+        }
+
+        async function sendAdminReply(userPhone, msgId) {
+            const text = document.getElementById(`admin-reply-${msgId}`).value.trim();
+            if(!text) return;
+            await supabaseClient.from('messages').insert([{
+                user_phone: userPhone, user_name: 'Admin', sender: 'admin', text, date: new Date().toLocaleTimeString(), read: false
+            }]);
+            alert('Réponse envoyée !');
+            loadAdminData();
+        }
+
+        async function handleRequest(id, action) {
+            const { data: reqs } = await supabaseClient.from('requests').select('*').eq('id', id);
+            if(!reqs || reqs.length === 0) return;
+            const req = reqs[0];
+
+            const { data: users } = await supabaseClient.from('users').select('*').eq('phone', req.user_phone);
+            if(!users || users.length === 0) return;
+            let targetUser = users[0];
+
+            if(action === 'Valider') {
+                if(req.type === 'Dépôt') targetUser.balance += req.amount;
+                if(req.type === 'Retrait') targetUser.balance -= req.amount;
+                await supabaseClient.from('requests').update({ status: 'Validé' }).eq('id', id);
+                await supabaseClient.from('users').update({ balance: targetUser.balance }).eq('phone', targetUser.phone);
+            } else {
+                await supabaseClient.from('requests').update({ status: 'Refusé' }).eq('id', id);
+                await supabaseClient.from('messages').insert([{
+                    user_phone: req.user_phone, user_name: 'Admin', sender: 'admin', text: `❌ [Demande Refusée] Votre demande a été refusée.`, date: new Date().toLocaleTimeString(), read: false
+                }]);
+            }
+            loadAdminData();
+        }
+
+        window.onload = function() {
+            applyLanguage();
+            refreshAdminBadge();
+            renderSubscriptionsList();
+            updateSectionUI();
+            if(currentUser) {
+                document.getElementById('auth-page').classList.add('hidden');
+                document.getElementById('dashboard-page').classList.remove('hidden');
+                updateDashboardUI();
+            }
+        };
+    </script>
+</body>
+</html>
